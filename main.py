@@ -9,13 +9,6 @@ class GraphicsView(QtWidgets.QGraphicsView):
         self.setScene(QtWidgets.QGraphicsScene())
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0x00, 0x09, 0x4B)))
 
-        # place image
-        self.image = QtGui.QImage("image.jpg")
-
-        self.scene().addItem(
-            QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
-        )
-
     def wheelEvent(self, event):
         zoom_in = 1.25
         zoom_out = 1 / zoom_in
@@ -51,11 +44,46 @@ class GraphicsView(QtWidgets.QGraphicsView):
         return QtCore.QSize(800, 600)
 
 
+class HandleGraphicsItem(QtWidgets.QGraphicsEllipseItem):
+    def __init__(self):
+        super().__init__()
+        self.setRect(-5, -5, 10, 10)
+
+    def mousePressEvent(self, event):
+        print("MousePressed")
+        return super().mousePressEvent(event)
+
+
 class MainWidget(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setCentralWidget(GraphicsView())
+        self.view = GraphicsView()
+
+        self.setCentralWidget(self.view)
+
+        self.view.setSceneRect(0, 0, 800, 600)
+
+        item = self.view.scene().addEllipse(QtCore.QRectF(100, 100, 150, 100))
+
+        # item.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+
+        brect = self.view.scene().addRect(item.boundingRect())
+        brect.setPen(QtGui.QPen(QtGui.QColor(0x00, 0xFF, 0x00)))
+
+        # item.setPen(QtGui.QPen(QtCore.Qt.PenStyle.NoPen))
+        # item.setBrush(QtGui.QColor(0xFF, 0x00, 0x00))
+
+        handle = HandleGraphicsItem()
+        handle.moveBy(100, 100)
+
+        self.view.scene().addItem(handle)
+
+        handle.setPen(QtGui.QPen(QtCore.Qt.PenStyle.NoPen))
+        handle.setBrush(QtGui.QColor(0xFF, 0x00, 0x00))
+
+        brect.setParentItem(item)
+        # handle.setParentItem(item)
 
 
 def main():
